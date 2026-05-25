@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXFIELD — Roblox Sports Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-blue: #0066ff;
+    --neon-purple: #7c3aed;
+    --neon-green: #00ff88;
+    --neon-orange: #ff6b00;
+    --bg-void: #020408;
+    --bg-dark: #040c14;
+    --bg-card: #071220;
+    --bg-card2: #0a1628;
+    --bg-glass: rgba(0, 245, 255, 0.03);
+    --border-neon: rgba(0, 245, 255, 0.15);
+    --border-glow: rgba(0, 245, 255, 0.4);
+    --text-primary: #e8f4ff;
+    --text-secondary: #6b9ab8;
+    --text-muted: #2a4a6b;
+    --font-display: 'Orbitron', sans-serif;
+    --font-ui: 'Rajdhani', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-void);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ───────────────────────── SCROLLBAR ───────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 2px; }
+
+  /* ───────────────────────── LANDING PAGE ───────────────────────── */
+  #landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Animated background grid */
+  #landing::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,102,255,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,102,255,0.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  /* Radial glow center */
+  #landing::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(ellipse, rgba(0,102,255,0.12) 0%, rgba(0,245,255,0.05) 40%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Floating particles */
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    animation: floatParticle var(--dur, 8s) ease-in-out infinite;
+    opacity: 0.6;
+  }
+
+  @keyframes floatParticle {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+    25% { transform: translateY(-40px) translateX(20px); opacity: 0.8; }
+    50% { transform: translateY(-20px) translateX(-10px); opacity: 0.4; }
+    75% { transform: translateY(-60px) translateX(30px); opacity: 1; }
+  }
+
+  /* Diagonal speed lines */
+  .speed-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.3), transparent);
+    animation: speedLine var(--spd, 4s) ease-in-out infinite;
+    opacity: 0;
+  }
+
+  @keyframes speedLine {
+    0% { opacity: 0; transform: scaleX(0) translateX(-100%); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scaleX(1) translateX(100%); }
+  }
+
+  /* ───────────────────────── NAVBAR ───────────────────────── */
+  .navbar {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid rgba(0,245,255,0.06);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--bg-void);
+    position: relative;
+  }
+
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: var(--text-primary);
+  }
+
+  .logo-text span {
+    color: var(--neon-cyan);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--neon-cyan); }
+
+  .nav-cta {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--neon-cyan);
+    background: transparent;
+    border: 1px solid var(--border-neon);
+    padding: 10px 24px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .nav-cta:hover {
+    background: rgba(0,245,255,0.08);
+    border-color: var(--neon-cyan);
+    color: white;
+  }
+
+  /* ───────────────────────── HERO ───────────────────────── */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 48px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,245,255,0.06);
+    border: 1px solid rgba(0,245,255,0.2);
+    padding: 6px 18px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.7); }
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .hero-title .line1 { color: var(--text-primary); }
+  .hero-title .line2 {
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan), var(--neon-blue));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+  }
+
+  .hero-tagline {
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin: 28px 0 52px;
+    text-transform: uppercase;
+    max-width: 520px;
+  }
+
+  .discord-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #5865F2, #4752C4);
+    border: none;
+    padding: 18px 48px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: white;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .discord-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+
+  .discord-btn:hover::after { transform: translateX(100%); }
+  .discord-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(88,101,242,0.5);
+  }
+
+  .discord-icon {
+    width: 22px;
+    height: 16px;
+    fill: white;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 60px;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(0,245,255,0.08);
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--neon-cyan);
+    letter-spacing: 2px;
+  }
+
+  .hero-stat-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ───────────────────────── PLATFORM (hidden initially) ───────────────────────── */
+  #platform {
+    display: none;
+    min-height: 100vh;
+    background: var(--bg-void);
+    flex-direction: column;
+  }
+
+  #platform.active { display: flex; }
+
+  /* ───────────────────────── TOP BAR ───────────────────────── */
+  .topbar {
+    height: 60px;
+    background: rgba(4,12,20,0.95);
+    border-bottom: 1px solid var(--border-neon);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    backdrop-filter: blur(20px);
+    flex-shrink: 0;
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 160px;
+  }
+
+  .topbar-logo-icon {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--bg-void);
+  }
+
+  .topbar-logo-text {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+  }
+
+  .topbar-logo-text span { color: var(--neon-cyan); }
+
+  /* Sports dropdown */
+  .sports-dropdown {
+    position: relative;
+  }
+
+  .sports-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,245,255,0.04);
+    border: 1px solid var(--border-neon);
+    padding: 8px 16px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .sports-btn:hover {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    background: rgba(0,245,255,0.08);
+  }
+
+  .sports-arrow {
+    transition: transform 0.2s;
+    font-size: 10px;
+    opacity: 0.6;
+  }
+
+  .sports-dropdown.open .sports-arrow { transform: rotate(180deg); }
+
+  .sports-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    background: rgba(4,18,40,0.98);
+    border: 1px solid var(--border-neon);
+    backdrop-filter: blur(20px);
+    display: none;
+    z-index: 300;
+  }
+
+  .sports-dropdown.open .sports-menu { display: block; }
+
+  .sport-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-bottom: 1px solid rgba(0,245,255,0.04);
+  }
+
+  .sport-item:hover {
+    background: rgba(0,245,255,0.06);
+    color: var(--neon-cyan);
+    padding-left: 24px;
+  }
+
+  .sport-item:last-child { border-bottom: none; }
+
+  .sport-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .sport-item:hover .sport-dot { background: var(--neon-cyan); }
+
+  /* Search bar */
+  .topbar-search {
+    flex: 1;
+    max-width: 320px;
+    position: relative;
+  }
+
+  .topbar-search input {
+    width: 100%;
+    background: rgba(0,245,255,0.03);
+    border: 1px solid var(--border-neon);
+    padding: 8px 14px 8px 38px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .topbar-search input::placeholder { color: var(--text-muted); }
+  .topbar-search input:focus { border-color: rgba(0,245,255,0.4); }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* Topbar right actions */
+  .topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .action-btn {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,245,255,0.04);
+    border: 1px solid var(--border-neon);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+  }
+
+  .action-btn:hover {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    background: rgba(0,245,255,0.08);
+  }
+
+  .notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    background: #ff3b3b;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+  }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,245,255,0.04);
+    border: 1px solid var(--border-neon);
+    padding: 6px 14px 6px 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .user-pill:hover {
+    border-color: var(--neon-cyan);
+    background: rgba(0,245,255,0.08);
+  }
+
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .user-name {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+  }
+
+  /* ───────────────────────── MAIN LAYOUT ───────────────────────── */
+  .main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ───────────────────────── SIDEBAR ───────────────────────── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: rgba(4,12,20,0.6);
+    border-right: 1px solid var(--border-neon);
+    padding: 20px 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    margin-bottom: 28px;
+  }
+
+  .sidebar-label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 0 20px 10px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    text-transform: uppercase;
+  }
+
+  .sidebar-item:hover {
+    background: rgba(0,245,255,0.04);
+    color: var(--text-primary);
+    border-left-color: rgba(0,245,255,0.3);
+  }
+
+  .sidebar-item.active {
+    background: rgba(0,245,255,0.07);
+    color: var(--neon-cyan);
+    border-left-color: var(--neon-cyan);
+  }
+
+  .sidebar-item-icon {
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background: rgba(0,245,255,0.1);
+    border: 1px solid rgba(0,245,255,0.2);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    padding: 2px 7px;
+    font-family: var(--font-body);
+  }
+
+  /* ───────────────────────── CONTENT AREA ───────────────────────── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+    background: var(--bg-void);
+    position: relative;
+  }
+
+  /* Subtle background pattern */
+  .content::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,102,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,102,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .content > * { position: relative; z-index: 1; }
+
+  /* ───────────────────────── SPORT HEADER ───────────────────────── */
+  .sport-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .sport-title-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .sport-icon-big {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, rgba(0,102,255,0.2), rgba(0,245,255,0.1));
+    border: 1px solid var(--border-neon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .sport-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .sport-subtitle {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,59,59,0.1);
+    border: 1px solid rgba(255,59,59,0.3);
+    padding: 6px 14px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #ff5555;
+    text-transform: uppercase;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .live-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #ff5555;
+    border-radius: 50%;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  /* ───────────────────────── DASHBOARD GRID ───────────────────────── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 340px;
+    grid-template-rows: auto auto auto;
+    gap: 18px;
+  }
+
+  /* ───────────────────────── CARDS ───────────────────────── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-neon);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: rgba(0,245,255,0.3); }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    opacity: 0.4;
+  }
+
+  .card-title {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title-icon {
+    font-size: 10px;
+    color: var(--neon-cyan);
+    opacity: 0.7;
+  }
+
+  /* ───────────────────────── PLAYER PROFILE ───────────────────────── */
+  .player-profile {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+
+  .player-avatar-wrap {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+  }
+
+  .player-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+  }
+
+  .rank-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--bg-void);
+  }
+
+  .player-name {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .player-tag {
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--neon-cyan);
+    margin-bottom: 20px;
+  }
+
+  .player-level-bar-wrap {
+    margin-bottom: 20px;
+  }
+
+  .level-info {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .level-bar {
+    height: 4px;
+    background: rgba(0,245,255,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .level-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+    width: 73%;
+    position: relative;
+    animation: levelPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes levelPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+  }
+
+  .level-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--neon-cyan);
+  }
+
+  .player-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .player-stat-box {
+    background: rgba(0,245,255,0.03);
+    border: 1px solid rgba(0,245,255,0.08);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .player-stat-val {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--neon-cyan);
+    letter-spacing: 1px;
+  }
+
+  .player-stat-lbl {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .team-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,102,255,0.06);
+    border: 1px solid rgba(0,102,255,0.2);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+
+  .team-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--neon-blue);
+    border-radius: 50%;
+  }
+
+  .team-name {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #5b8fff;
+    text-transform: uppercase;
+  }
+
+  .team-role {
+    margin-left: auto;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* ───────────────────────── CALENDAR ───────────────────────── */
+  .calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .event-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(0,245,255,0.02);
+    border: 1px solid rgba(0,245,255,0.07);
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .event-item:hover {
+    background: rgba(0,245,255,0.06);
+    border-color: rgba(0,245,255,0.2);
+    transform: translateX(3px);
+  }
+
+  .event-date-box {
+    text-align: center;
+    min-width: 40px;
+  }
+
+  .event-day {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--neon-cyan);
+    line-height: 1;
+  }
+
+  .event-month {
+    font-family: var(--font-ui);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .event-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border-neon);
+  }
+
+  .event-info { flex: 1; }
+
+  .event-name {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .event-sub {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .event-type {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+  }
+
+  .type-match {
+    background: rgba(0,255,136,0.08);
+    border: 1px solid rgba(0,255,136,0.2);
+    color: var(--neon-green);
+  }
+
+  .type-training {
+    background: rgba(0,102,255,0.08);
+    border: 1px solid rgba(0,102,255,0.2);
+    color: #5b8fff;
+  }
+
+  .type-cup {
+    background: rgba(255,215,0,0.08);
+    border: 1px solid rgba(255,215,0,0.2);
+    color: #ffd700;
+  }
+
+  /* ───────────────────────── WIN RATE CHART ───────────────────────── */
+  .winrate-display {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .winrate-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .winrate-circle svg { transform: rotate(-90deg); }
+
+  .winrate-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .winrate-pct {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--neon-cyan);
+    line-height: 1;
+  }
+
+  .winrate-lbl {
+    font-family: var(--font-ui);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .match-history {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .match-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+
+  .result-pill {
+    width: 28px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+
+  .result-w {
+    background: rgba(0,255,136,0.15);
+    color: var(--neon-green);
+    border: 1px solid rgba(0,255,136,0.3);
+  }
+
+  .result-l {
+    background: rgba(255,59,59,0.12);
+    color: #ff5555;
+    border: 1px solid rgba(255,59,59,0.3);
+  }
+
+  .result-d {
+    background: rgba(255,165,0,0.1);
+    color: #ffaa33;
+    border: 1px solid rgba(255,165,0,0.25);
+  }
+
+  /* ───────────────────────── MINI BAR CHART ───────────────────────── */
+  .mini-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 50px;
+    padding-top: 8px;
+  }
+
+  .mini-bar {
+    flex: 1;
+    background: linear-gradient(to top, var(--neon-blue), var(--neon-cyan));
+    opacity: 0.6;
+    border-radius: 1px 1px 0 0;
+    transition: opacity 0.2s;
+    position: relative;
+    animation: barGrow 1s ease-out forwards;
+    transform-origin: bottom;
+  }
+
+  @keyframes barGrow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  .mini-bar:hover { opacity: 1; }
+
+  /* ───────────────────────── LEADERBOARD ───────────────────────── */
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lb-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(0,245,255,0.02);
+    border: 1px solid rgba(0,245,255,0.06);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .lb-item:hover {
+    background: rgba(0,245,255,0.06);
+    transform: translateX(3px);
+  }
+
+  .lb-item.me {
+    background: rgba(0,102,255,0.06);
+    border-color: rgba(0,102,255,0.25);
+  }
+
+  .lb-rank {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    min-width: 24px;
+    color: var(--text-muted);
+  }
+
+  .lb-rank.top1 { color: #ffd700; }
+  .lb-rank.top2 { color: #c0c0c0; }
+  .lb-rank.top3 { color: #cd7f32; }
+
+  .lb-avatar {
+    width: 28px;
+    height: 28px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .lb-name {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    flex: 1;
+  }
+
+  .lb-xp {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--neon-cyan);
+    letter-spacing: 1px;
+  }
+
+  .lb-change {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 30px;
+    text-align: right;
+  }
+
+  .up { color: var(--neon-green); }
+  .dn { color: #ff5555; }
+  .same { color: var(--text-muted); }
+
+  /* ───────────────────────── STATS SYNC AREA ───────────────────────── */
+  .stats-sync {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+  }
+
+  .sync-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .sync-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .sync-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #7289da;
+    text-transform: uppercase;
+  }
+
+  .discord-dot {
+    width: 7px;
+    height: 7px;
+    background: #7289da;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--bg-card2);
+    border: 1px solid var(--border-neon);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .stat-card:hover {
+    border-color: rgba(0,245,255,0.35);
+    transform: translateY(-2px);
+  }
+
+  .stat-card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+  }
+
+  .accent-cyan { background: var(--neon-cyan); }
+  .accent-blue { background: var(--neon-blue); }
+  .accent-green { background: var(--neon-green); }
+  .accent-purple { background: var(--neon-purple); }
+  .accent-orange { background: var(--neon-orange); }
+  .accent-gold { background: #ffd700; }
+
+  .stat-card-icon {
+    font-size: 18px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  .stat-card-val {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-card-lbl {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .stat-card-trend {
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* ───────────────────────── SEASON BANNER ───────────────────────── */
+  .season-banner {
+    background: linear-gradient(135deg, rgba(0,102,255,0.08), rgba(0,245,255,0.04));
+    border: 1px solid rgba(0,102,255,0.25);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .season-banner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.04));
+    pointer-events: none;
+  }
+
+  .season-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .season-badge {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+    padding: 6px 16px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--bg-void);
+    text-transform: uppercase;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .season-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .season-ends {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .season-progress-wrap {
+    flex: 1;
+    max-width: 280px;
+    margin: 0 32px;
+  }
+
+  .season-prog-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .season-prog-bar {
+    height: 6px;
+    background: rgba(0,245,255,0.08);
+    position: relative;
+    overflow: visible;
+  }
+
+  .season-prog-fill {
+    height: 100%;
+    width: 62%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+    position: relative;
+  }
+
+  .season-prog-fill::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--neon-cyan);
+  }
+
+  /* ───────────────────────── ACHIEVEMENTS ───────────────────────── */
+  .achievements-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .achievement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,245,255,0.03);
+    border: 1px solid rgba(0,245,255,0.1);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .achievement.unlocked {
+    background: rgba(255,215,0,0.05);
+    border-color: rgba(255,215,0,0.2);
+  }
+
+  .achievement:hover {
+    transform: translateY(-2px);
+    border-color: var(--neon-cyan);
+  }
+
+  .ach-icon { font-size: 16px; }
+
+  .ach-name {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+
+  .achievement.unlocked .ach-name { color: #ffd700; }
+
+  /* ───────────────────────── ANIMATIONS ───────────────────────── */
+  .fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  .slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  @keyframes slideUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ───────────────────────── RESPONSIVE ───────────────────────── */
+  @media (max-width: 1100px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .player-profile {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+    .stats-sync { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 768px) {
+    .navbar { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 40px 20px; }
+    .hero-stats { gap: 30px; flex-wrap: wrap; justify-content: center; }
+    .topbar { padding: 0 12px; gap: 10px; }
+    .topbar-search { display: none; }
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .player-profile { grid-column: 1; }
+    .season-banner { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .season-progress-wrap { max-width: 100%; margin: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ LANDING PAGE ═══════════════════════════════ -->
+<div id="landing">
+
+  <!-- Particles -->
+  <div class="particle" style="top:20%;left:10%;--dur:7s;"></div>
+  <div class="particle" style="top:60%;left:5%;--dur:11s;width:3px;height:3px;background:var(--neon-blue)"></div>
+  <div class="particle" style="top:40%;right:8%;--dur:9s;background:var(--neon-purple)"></div>
+  <div class="particle" style="top:75%;right:15%;--dur:13s;"></div>
+  <div class="particle" style="top:15%;right:25%;--dur:8s;width:3px;height:3px;"></div>
+  <div class="particle" style="top:85%;left:30%;--dur:10s;background:var(--neon-green)"></div>
+  <div class="particle" style="top:50%;left:50%;--dur:6s;background:var(--neon-blue)"></div>
+
+  <!-- Speed lines -->
+  <div class="speed-line" style="top:30%;width:40%;left:10%;--spd:5s;animation-delay:0s;"></div>
+  <div class="speed-line" style="top:55%;width:30%;left:60%;--spd:7s;animation-delay:2s;"></div>
+  <div class="speed-line" style="top:70%;width:25%;left:25%;--spd:4s;animation-delay:1s;"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="#" class="logo-mark">
+      <div class="logo-icon">NX</div>
+      <div class="logo-text">NEX<span>FIELD</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Plataforma</a></li>
+      <li><a href="#">Desportos</a></li>
+      <li><a href="#">Rankings</a></li>
+      <li><a href="#">Torneios</a></li>
+    </ul>
+    <button class="nav-cta" onclick="enterPlatform()">Entrar</button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">Roblox Sports Universe • Temporada 4</div>
+
+    <h1 class="hero-title">
+      <div class="line1">NEXFIELD</div>
+      <div class="line2">SPORTS</div>
+    </h1>
+
+    <p class="hero-tagline">A arena competitiva definitiva do Roblox</p>
+
+    <button class="discord-btn" onclick="enterPlatform()">
+      <svg class="discord-icon" viewBox="0 0 71 55" xmlns="http://www.w3.org/2000/svg">
+        <path d="M60.1 4.9A58.5 58.5 0 0 0 45.5 0.6a40.6 40.6 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.3 0 38.6 38.6 0 0 0-1.8-3.7A58.3 58.3 0 0 0 10.9 5C1.6 19.1-1 32.8 0.3 46.4a58.8 58.8 0 0 0 17.9 9.1 42.3 42.3 0 0 0 3.7-6 38.3 38.3 0 0 1-5.8-2.8c.5-.4 1-.7 1.5-1.1a41.9 41.9 0 0 0 35.7 0l1.5 1.1a38.5 38.5 0 0 1-5.8 2.8 42.3 42.3 0 0 0 3.7 6 58.6 58.6 0 0 0 17.9-9 52.4 52.4 0 0 0-9-41.5zm-38.1 33c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1 6.5 3.2 6.4 7.1c0 3.9-2.9 7.1-6.4 7.1zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1 6.5 3.2 6.4 7.1c0 3.9-2.8 7.1-6.4 7.1z"/>
+      </svg>
+      Entrar com Discord
+    </button>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">12.4K</div>
+        <div class="hero-stat-label">Jogadores Ativos</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">847</div>
+        <div class="hero-stat-label">Torneios</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">11</div>
+        <div class="hero-stat-label">Desportos</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">S04</div>
+        <div class="hero-stat-label">Temporada Atual</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+<!-- ═══════════════════════════════ PLATFORM ═══════════════════════════════ -->
+<div id="platform">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">NX</div>
+      <div class="topbar-logo-text">NEX<span>FIELD</span></div>
+    </div>
+
+    <!-- Sports Dropdown -->
+    <div class="sports-dropdown" id="sportsDropdown">
+      <button class="sports-btn" onclick="toggleSports()">
+        <span id="activeSportLabel">⚽ Futebol</span>
+        <span class="sports-arrow">▾</span>
+      </button>
+      <div class="sports-menu">
+        <div class="sport-item" onclick="selectSport('⚽', 'Futebol')"><div class="sport-dot"></div>⚽ Futebol</div>
+        <div class="sport-item" onclick="selectSport('🏀', 'Basquetebol')"><div class="sport-dot"></div>🏀 Basquetebol</div>
+        <div class="sport-item" onclick="selectSport('🎾', 'Ténis')"><div class="sport-dot"></div>🎾 Ténis</div>
+        <div class="sport-item" onclick="selectSport('🏎️', 'Fórmula 1')"><div class="sport-dot"></div>🏎️ Fórmula 1</div>
+        <div class="sport-item" onclick="selectSport('🏐', 'Voleibol')"><div class="sport-dot"></div>🏐 Voleibol</div>
+        <div class="sport-item" onclick="selectSport('🥊', 'MMA')"><div class="sport-dot"></div>🥊 MMA</div>
+        <div class="sport-item" onclick="selectSport('🏈', 'NFL')"><div class="sport-dot"></div>🏈 NFL</div>
+        <div class="sport-item" onclick="selectSport('⚾', 'Basebol')"><div class="sport-dot"></div>⚾ Basebol</div>
+        <div class="sport-item" onclick="selectSport('🏃', 'Atletismo')"><div class="sport-dot"></div>🏃 Atletismo</div>
+        <div class="sport-item" onclick="selectSport('🎮', 'eSports')"><div class="sport-dot"></div>🎮 eSports</div>
+        <div class="sport-item" onclick="selectSport('🏆', 'Outros')"><div class="sport-dot"></div>🏆 Outros</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="topbar-search">
+      <span class="search-icon">⌕</span>
+      <input type="text" placeholder="Pesquisar jogadores, torneios...">
+    </div>
+
+    <!-- Actions -->
+    <div class="topbar-actions">
+      <div class="action-btn" title="Notificações" onclick="toggleNotif(this)">
+        🔔
+        <div class="notif-badge" id="notifBadge">3</div>
+      </div>
+      <div class="action-btn" title="Configurações">⚙</div>
+      <div class="user-pill" onclick="toggleUserMenu()">
+        <div class="user-avatar">MG</div>
+        <div class="user-name">Miguel_GX</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="main-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Navegação</div>
+        <div class="sidebar-item active" onclick="setActive(this)">
+          <span class="sidebar-item-icon">◈</span> Dashboard
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">▷</span> Partidas
+          <span class="sidebar-badge">2</span>
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">◉</span> Torneios
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">≡</span> Leaderboard
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">◎</span> Calendário
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Equipa</div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">⬡</span> FC Nexus
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">◷</span> Treinos
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">⊕</span> Recrutamento
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Perfil</div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">◈</span> Estatísticas
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">★</span> Conquistas
+        </div>
+        <div class="sidebar-item" onclick="setActive(this)">
+          <span class="sidebar-item-icon">◪</span> Inventário
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- Season banner -->
+      <div class="season-banner slide-up">
+        <div class="season-info">
+          <div class="season-badge">S04</div>
+          <div>
+            <div class="season-name">Temporada Nexus — Inverno 2025</div>
+            <div class="season-ends">Termina em 18 dias · 14 horas</div>
+          </div>
+        </div>
+        <div class="season-progress-wrap">
+          <div class="season-prog-label">
+            <span>Progresso</span>
+            <span style="color:var(--neon-cyan)">62%</span>
+          </div>
+          <div class="season-prog-bar">
+            <div class="season-prog-fill"></div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--neon-cyan)">4,820</div>
+          <div style="font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase">Pontos Comp.</div>
+        </div>
+      </div>
+
+      <!-- Sport Header -->
+      <div class="sport-header fade-in">
+        <div class="sport-title-area">
+          <div class="sport-icon-big" id="sportIconBig">⚽</div>
+          <div>
+            <div class="sport-title" id="sportTitleBig">Futebol</div>
+            <div class="sport-subtitle">Liga Nexfield Pro • Divisão 1</div>
+          </div>
+        </div>
+        <div class="live-badge">Ao vivo agora</div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+
+        <!-- Calendar -->
+        <div class="card slide-up" style="animation-delay:0.05s">
+          <div class="card-title">
+            Calendário
+            <span class="card-title-icon">▸ Ver tudo</span>
+          </div>
+          <div class="calendar-events">
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">28</div>
+                <div class="event-month">Jun</div>
+              </div>
+              <div class="event-divider"></div>
+              <div class="event-info">
+                <div class="event-name">FC Nexus vs Storm United</div>
+                <div class="event-sub">Liga Nexfield Pro • 20:00</div>
+              </div>
+              <div class="event-type type-match">Jogo</div>
+            </div>
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">29</div>
+                <div class="event-month">Jun</div>
+              </div>
+              <div class="event-divider"></div>
+              <div class="event-info">
+                <div class="event-name">Treino Tático</div>
+                <div class="event-sub">Campo Principal • 18:00</div>
+              </div>
+              <div class="event-type type-training">Treino</div>
+            </div>
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">02</div>
+                <div class="event-month">Jul</div>
+              </div>
+              <div class="event-divider"></div>
+              <div class="event-info">
+                <div class="event-name">Nexfield Cup — QF</div>
+                <div class="event-sub">Fase Final • 21:00</div>
+              </div>
+              <div class="event-type type-cup">Copa</div>
+            </div>
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">05</div>
+                <div class="event-month">Jul</div>
+              </div>
+              <div class="event-divider"></div>
+              <div class="event-info">
+                <div class="event-name">Vortex FC vs FC Nexus</div>
+                <div class="event-sub">Liga Nexfield Pro • 19:30</div>
+              </div>
+              <div class="event-type type-match">Jogo</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Win Rate + History -->
+        <div class="card slide-up" style="animation-delay:0.1s">
+          <div class="card-title">
+            Desempenho Recente
+            <span class="card-title-icon">◈</span>
+          </div>
+
+          <div class="winrate-display">
+            <div class="winrate-circle">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(0,245,255,0.08)" stroke-width="6"/>
+                <circle cx="40" cy="40" r="32" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-dasharray="201" stroke-dashoffset="50" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#0066ff"/>
+                    <stop offset="100%" stop-color="#00f5ff"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="winrate-text">
+                <div class="winrate-pct">75%</div>
+                <div class="winrate-lbl">Win Rate</div>
+              </div>
+            </div>
+            <div style="flex:1">
+              <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Últimas 10 partidas</div>
+              <div style="display:flex;gap:5px">
+                <div class="result-pill result-w">V</div>
+                <div class="result-pill result-w">V</div>
+                <div class="result-pill result-d">E</div>
+                <div class="result-pill result-w">V</div>
+                <div class="result-pill result-l">D</div>
+                <div class="result-pill result-w">V</div>
+                <div class="result-pill result-w">V</div>
+                <div class="result-pill result-w">V</div>
+                <div class="result-pill result-d">E</div>
+                <div class="result-pill result-w">V</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top:16px">Performance Mensal</div>
+          <div class="mini-bars">
+            <div class="mini-bar" style="height:35%;animation-delay:0s"></div>
+            <div class="mini-bar" style="height:55%;animation-delay:0.05s"></div>
+            <div class="mini-bar" style="height:45%;animation-delay:0.1s"></div>
+            <div class="mini-bar" style="height:70%;animation-delay:0.15s"></div>
+            <div class="mini-bar" style="height:60%;animation-delay:0.2s;opacity:0.5;background:linear-gradient(to top,var(--neon-purple),#a855f7)"></div>
+            <div class="mini-bar" style="height:80%;animation-delay:0.25s"></div>
+            <div class="mini-bar" style="height:90%;animation-delay:0.3s;opacity:0.9"></div>
+            <div class="mini-bar" style="height:75%;animation-delay:0.35s"></div>
+            <div class="mini-bar" style="height:65%;animation-delay:0.4s;background:linear-gradient(to top,var(--neon-blue),#00f5ff)"></div>
+            <div class="mini-bar" style="height:85%;animation-delay:0.45s"></div>
+            <div class="mini-bar" style="height:70%;animation-delay:0.5s"></div>
+            <div class="mini-bar" style="height:95%;animation-delay:0.55s;background:linear-gradient(to top,#0066ff,var(--neon-cyan))"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-top:6px">
+            <span>Jan</span><span>Mar</span><span>Mai</span><span>Jun</span>
+          </div>
+        </div>
+
+        <!-- Player Profile -->
+        <div class="card player-profile slide-up" style="animation-delay:0.15s">
+          <div class="card-title">Perfil do Jogador <span class="card-title-icon" style="cursor:pointer;color:var(--neon-cyan)">✎ Editar</span></div>
+
+          <div class="player-avatar-wrap">
+            <div class="player-avatar">MG</div>
+            <div class="rank-badge">I</div>
+          </div>
+
+          <div class="player-name">Miguel_GX</div>
+          <div class="player-tag">Platinum I • MVP Season 3</div>
+
+          <div class="player-level-bar-wrap">
+            <div class="level-info">
+              <span>Nível 47</span>
+              <span style="color:var(--neon-cyan)">7,300 / 10,000 XP</span>
+            </div>
+            <div class="level-bar">
+              <div class="level-fill"></div>
+            </div>
+          </div>
+
+          <div class="player-stats-grid">
+            <div class="player-stat-box">
+              <div class="player-stat-val">284</div>
+              <div class="player-stat-lbl">Partidas</div>
+            </div>
+            <div class="player-stat-box">
+              <div class="player-stat-val" style="color:var(--neon-green)">75%</div>
+              <div class="player-stat-lbl">Win Rate</div>
+            </div>
+            <div class="player-stat-box">
+              <div class="player-stat-val" style="color:#ffd700">23</div>
+              <div class="player-stat-lbl">MVPs</div>
+            </div>
+            <div class="player-stat-box">
+              <div class="player-stat-val" style="color:#a855f7">4,820</div>
+              <div class="player-stat-lbl">Comp. Pts</div>
+            </div>
+          </div>
+
+          <div class="team-badge">
+            <div class="team-dot"></div>
+            <div class="team-name">FC Nexus</div>
+            <div class="team-role">Capitão</div>
+          </div>
+
+          <!-- Achievements preview -->
+          <div class="achievements-row">
+            <div class="achievement unlocked">
+              <span class="ach-icon">🏆</span>
+              <span class="ach-name">Campeão</span>
+            </div>
+            <div class="achievement unlocked">
+              <span class="ach-icon">⚡</span>
+              <span class="ach-name">Hat-trick</span>
+            </div>
+            <div class="achievement">
+              <span class="ach-icon">🌟</span>
+              <span class="ach-name">Legend</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="card" style="grid-column:1/3;animation-delay:0.2s" class="slide-up">
+          <div class="card-title">
+            Leaderboard — Liga Nexfield Pro
+            <span class="card-title-icon" style="cursor:pointer;color:var(--neon-cyan)">▸ Ver top 100</span>
+          </div>
+          <div class="leaderboard-list" id="leaderboard">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Stats Sync Discord -->
+        <div class="stats-sync card slide-up" style="animation-delay:0.25s">
+          <div class="sync-header">
+            <div class="sync-title">Estatísticas — Sincronizado com Discord</div>
+            <div class="sync-badge">
+              <div class="discord-dot"></div>
+              Online · Sincronizado há 2 min
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-accent accent-cyan"></div>
+              <div class="stat-card-icon">💬</div>
+              <div class="stat-card-val" style="color:var(--neon-cyan)">3,241</div>
+              <div class="stat-card-lbl">Mensagens</div>
+              <div class="stat-card-trend up">+127 hoje</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-blue"></div>
+              <div class="stat-card-icon">🕐</div>
+              <div class="stat-card-val" style="color:#5b8fff">487h</div>
+              <div class="stat-card-lbl">Tempo Online</div>
+              <div class="stat-card-trend up">+2.4h hoje</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-green"></div>
+              <div class="stat-card-icon">🎯</div>
+              <div class="stat-card-val" style="color:var(--neon-green)">96</div>
+              <div class="stat-card-lbl">Eventos</div>
+              <div class="stat-card-trend up">+3 semana</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-purple"></div>
+              <div class="stat-card-icon">⭐</div>
+              <div class="stat-card-val" style="color:#a855f7">47</div>
+              <div class="stat-card-lbl">Nível</div>
+              <div class="stat-card-trend up">73% próx.</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-orange"></div>
+              <div class="stat-card-icon">🔥</div>
+              <div class="stat-card-val" style="color:var(--neon-orange)">12</div>
+              <div class="stat-card-lbl">Win Streak</div>
+              <div class="stat-card-trend up">Recorde!</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-gold"></div>
+              <div class="stat-card-icon">🏅</div>
+              <div class="stat-card-val" style="color:#ffd700">#12</div>
+              <div class="stat-card-lbl">Ranking Global</div>
+              <div class="stat-card-trend up">▲ +3</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-cyan"></div>
+              <div class="stat-card-icon">🎖</div>
+              <div class="stat-card-val" style="color:var(--neon-cyan)">4,820</div>
+              <div class="stat-card-lbl">Pontos Comp.</div>
+              <div class="stat-card-trend up">+220 hoje</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-accent accent-blue"></div>
+              <div class="stat-card-icon">💎</div>
+              <div class="stat-card-val" style="color:#5b8fff">23</div>
+              <div class="stat-card-lbl">MVPs</div>
+              <div class="stat-card-trend same">— S04</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dashboard-grid -->
+    </main>
+  </div><!-- /main-layout -->
+</div><!-- /platform -->
+
+
+<script>
+  // ─── DATA ───
+  const lbData = [
+    { rank: 1, name: "VortexKing_BR", xp: "12,440", change: "+2", avatar: "VK", color: "#ffd700" },
+    { rank: 2, name: "NightFalcon99", xp: "11,820", change: "+1", avatar: "NF", color: "#a855f7" },
+    { rank: 3, name: "StrikerZero_X", xp: "11,355", change: "-1", avatar: "SZ", color: "#0066ff" },
+    { rank: 4, name: "IronClad_PT", xp: "10,900", change: "+3", avatar: "IC", color: "#00c896" },
+    { rank: 5, name: "BlazeFoot_23", xp: "10,640", change: "-2", avatar: "BF", color: "#ff6b00" },
+    { rank: 6, name: "CyberStriker", xp: "9,870", change: "+0", avatar: "CS", color: "#00aaff" },
+    { rank: 7, name: "Apex_GX", xp: "9,500", change: "+1", avatar: "AG", color: "#ff3b8e" },
+    { rank: 8, name: "NexViper_Pro", xp: "9,100", change: "-1", avatar: "NV", color: "#7c3aed" },
+    { rank: 9, name: "ShadowKick_77", xp: "8,770", change: "+2", avatar: "SK", color: "#00d4aa" },
+    { rank: 10, name: "TitanBall_EU", xp: "8,500", change: "+0", avatar: "TB", color: "#ffaa33" },
+    { rank: 11, name: "CobraWing_88", xp: "8,200", change: "+0", avatar: "CW", color: "#00aaff" },
+    { rank: 12, name: "Miguel_GX", xp: "7,820", change: "+3", avatar: "MG", color: "#0066ff", me: true },
+  ];
+
+  function buildLeaderboard() {
+    const el = document.getElementById('leaderboard');
+    el.innerHTML = lbData.map(p => {
+      const rankClass = p.rank === 1 ? 'top1' : p.rank === 2 ? 'top2' : p.rank === 3 ? 'top3' : '';
+      const chgClass = p.change.startsWith('+') ? 'up' : p.change === '+0' || p.change === '-0' ? 'same' : 'dn';
+      const chgLabel = p.change === '+0' ? '—' : p.change;
+      return `<div class="lb-item${p.me ? ' me' : ''}">
+        <div class="lb-rank ${rankClass}">${p.rank}</div>
+        <div class="lb-avatar" style="background:linear-gradient(135deg,${p.color}88,${p.color}44)">${p.avatar}</div>
+        <div class="lb-name">${p.name}${p.me ? ' <span style="color:var(--neon-cyan);font-size:10px">[você]</span>' : ''}</div>
+        <div class="lb-xp">${p.xp} XP</div>
+        <div class="lb-change ${chgClass}">${chgLabel}</div>
+      </div>`;
+    }).join('');
+  }
+
+  buildLeaderboard();
+
+  // ─── LANDING → PLATFORM ───
+  function enterPlatform() {
+    const landing = document.getElementById('landing');
+    const platform = document.getElementById('platform');
+    landing.style.transition = 'opacity 0.5s, transform 0.5s';
+    landing.style.opacity = '0';
+    landing.style.transform = 'scale(1.02)';
+    setTimeout(() => {
+      landing.style.display = 'none';
+      platform.classList.add('active');
+      platform.style.opacity = '0';
+      platform.style.transition = 'opacity 0.5s';
+      setTimeout(() => { platform.style.opacity = '1'; }, 50);
+    }, 500);
+  }
+
+  // ─── SPORTS DROPDOWN ───
+  function toggleSports() {
+    document.getElementById('sportsDropdown').classList.toggle('open');
+  }
+
+  function selectSport(icon, name) {
+    document.getElementById('activeSportLabel').textContent = icon + ' ' + name;
+    document.getElementById('sportTitleBig').textContent = name;
+    document.getElementById('sportIconBig').textContent = icon;
+    document.getElementById('sportsDropdown').classList.remove('open');
+  }
+
+  // Close dropdown on outside click
+  document.addEventListener('click', e => {
+    const dd = document.getElementById('sportsDropdown');
+    if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+  });
+
+  // ─── SIDEBAR ACTIVE ───
+  function setActive(el) {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ─── NOTIFICATIONS ───
+  function toggleNotif(btn) {
+    const badge = document.getElementById('notifBadge');
+    if (badge.style.display !== 'none') {
+      badge.style.display = 'none';
+    } else {
+      badge.style.display = 'flex';
+    }
+  }
+
+  // ─── ANIMATED COUNTER ───
+  function animateCounter(el, target, suffix = '') {
+    let start = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = Math.round(start).toLocaleString('pt-PT') + suffix;
+      if (start >= target) clearInterval(timer);
+    }, 16);
+  }
+
+  // Animate hero stats on load
+  window.addEventListener('load', () => {
+    const stats = document.querySelectorAll('.hero-stat-num');
+    // Just let them display statically — they look great already
+  });
+</script>
+</body>
+</html>
