@@ -615,6 +615,392 @@
     color: var(--text-primary);
   }
 
+  .user-name-wrap {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .user-name-tag {
+    font-family: var(--font-ui);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #7289da;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .user-discord-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .user-online-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--neon-green);
+    flex-shrink: 0;
+  }
+
+  /* ───────────────────────── NOTIFICATION PANEL ───────────────────────── */
+  .notif-panel {
+    position: fixed;
+    top: 68px;
+    right: 24px;
+    width: 340px;
+    background: rgba(4,18,40,0.98);
+    border: 1px solid var(--border-neon);
+    backdrop-filter: blur(20px);
+    z-index: 500;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
+    animation: slideDown 0.2s ease-out;
+  }
+
+  .notif-panel.open { display: flex; }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .notif-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(0,245,255,0.08);
+  }
+
+  .notif-panel-title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .notif-mark-read {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .notif-mark-read:hover { opacity: 1; }
+
+  .notif-list { overflow-y: auto; max-height: 360px; }
+
+  .notif-item {
+    display: flex;
+    gap: 12px;
+    padding: 13px 18px;
+    border-bottom: 1px solid rgba(0,245,255,0.04);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .notif-item:hover { background: rgba(0,245,255,0.04); }
+
+  .notif-item.unread { background: rgba(0,102,255,0.04); }
+
+  .notif-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--neon-cyan);
+  }
+
+  .notif-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .notif-icon-match { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); }
+  .notif-icon-rank { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.2); }
+  .notif-icon-discord { background: rgba(114,137,218,0.1); border: 1px solid rgba(114,137,218,0.3); }
+
+  .notif-content { flex: 1; }
+
+  .notif-text {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 3px;
+  }
+
+  .notif-time {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .notif-panel-footer {
+    padding: 11px 18px;
+    border-top: 1px solid rgba(0,245,255,0.08);
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .notif-panel-footer:hover { opacity: 1; }
+
+  /* ───────────────────────── SETTINGS MODAL ───────────────────────── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2,4,8,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border-neon);
+    width: 480px;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalIn 0.25s ease-out;
+    clip-path: polygon(16px 0%, 100% 0%, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0% 100%, 0% 16px);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(0,245,255,0.08);
+  }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,245,255,0.04);
+    border: 1px solid rgba(0,245,255,0.1);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { color: var(--neon-cyan); border-color: var(--neon-cyan); }
+
+  .modal-body { padding: 20px 24px; }
+
+  .settings-section {
+    margin-bottom: 24px;
+  }
+
+  .settings-section-title {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0,245,255,0.06);
+  }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,245,255,0.04);
+  }
+
+  .settings-label {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+  }
+
+  .settings-desc {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .toggle {
+    width: 40px;
+    height: 22px;
+    background: rgba(0,245,255,0.1);
+    border: 1px solid rgba(0,245,255,0.15);
+    border-radius: 11px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle.on { background: rgba(0,245,255,0.25); border-color: var(--neon-cyan); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.2s;
+  }
+
+  .toggle.on::after { left: 20px; background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+
+  /* ───────────────────────── EDIT PROFILE MODAL ───────────────────────── */
+  .edit-input-group { margin-bottom: 16px; }
+
+  .edit-input-label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .edit-input {
+    width: 100%;
+    background: rgba(0,245,255,0.03);
+    border: 1px solid var(--border-neon);
+    padding: 10px 14px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .edit-input:focus { border-color: rgba(0,245,255,0.4); }
+
+  .edit-avatar-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .avatar-option {
+    width: 44px;
+    height: 44px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 900;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+    opacity: 0.6;
+  }
+
+  .avatar-option:hover, .avatar-option.selected { opacity: 1; transform: scale(1.1); }
+  .avatar-option.selected { box-shadow: 0 0 0 2px var(--neon-cyan); }
+
+  .save-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+    border: none;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--bg-void);
+    cursor: pointer;
+    text-transform: uppercase;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: opacity 0.2s;
+    margin-top: 4px;
+  }
+
+  .save-btn:hover { opacity: 0.85; }
+
   /* ───────────────────────── MAIN LAYOUT ───────────────────────── */
   .main-layout {
     display: flex;
@@ -1722,14 +2108,21 @@
 
     <!-- Actions -->
     <div class="topbar-actions">
-      <div class="action-btn" title="Notifica&ccedil;&otilde;es" onclick="toggleNotif(this)">
+      <div class="action-btn" title="Notificações" onclick="toggleNotifPanel(this)" id="notifBtn">
         &#128276;
         <div class="notif-badge" id="notifBadge">3</div>
       </div>
-      <div class="action-btn" title="Configura&ccedil;&otilde;es">&#9881;</div>
-      <div class="user-pill" id="userPill">
+      <div class="action-btn" title="Configurações" onclick="openSettings()">&#9881;</div>
+      <div class="user-pill" id="userPill" onclick="openEditProfile()">
+        <div class="user-online-dot"></div>
         <div class="user-avatar" id="userAvatar">??</div>
-        <div class="user-name" id="userName">A carregar...</div>
+        <div class="user-name-wrap">
+          <div class="user-name" id="userName">A carregar...</div>
+          <div class="user-discord-badge">
+            <svg width="9" height="7" viewBox="0 0 71 55" fill="#7289da" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.4 0a40 40 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A38.7 38.7 0 0 0 25.6 0 58.3 58.3 0 0 0 10.9 5C1.6 18.8-1 32.3.3 45.6a58.9 58.9 0 0 0 18 9.1 44.4 44.4 0 0 0 3.8-6.2 38.3 38.3 0 0 1-6-2.9l1.5-1.1a42 42 0 0 0 36 0l1.5 1.1a38.6 38.6 0 0 1-6 2.9 44 44 0 0 0 3.8 6.2 58.7 58.7 0 0 0 18-9.1C72.4 30.2 68.5 16.9 60.1 4.9ZM23.8 37.4c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.4 0c-3.5 0-6.4-3.2-6.4-7.2s2.9-7.2 6.4-7.2 6.4 3.2 6.3 7.2c0 4-2.8 7.2-6.3 7.2Z"/></svg>
+            <span class="user-name-tag" id="userTag">Discord</span>
+          </div>
+        </div>
       </div>
       <div class="action-btn" title="Sair" onclick="logout()" style="font-size:13px;letter-spacing:1px;font-family:var(--font-ui);font-weight:700;width:auto;padding:0 12px;color:var(--text-muted)">SAIR</div>
     </div>
@@ -1798,7 +2191,7 @@
       <div class="dashboard-grid">
         <!-- Calendar -->
         <div class="card slide-up" style="animation-delay:.05s">
-          <div class="card-title">Calend&aacute;rio <span class="card-title-icon">&#9658; Ver tudo</span></div>
+          <div class="card-title">Calendário <span class="card-title-icon" style="cursor:pointer;color:var(--neon-cyan)" onclick="openCalendar()">&#9658; Ver tudo</span></div>
           <div class="calendar-events">
             <div class="event-item">
               <div class="event-date-box"><div class="event-day">28</div><div class="event-month">Jun</div></div>
@@ -1851,7 +2244,7 @@
 
         <!-- Player Profile -->
         <div class="card player-profile slide-up" style="animation-delay:.15s">
-          <div class="card-title">Perfil do Jogador <span class="card-title-icon" style="cursor:pointer;color:var(--neon-cyan)">&#9998; Editar</span></div>
+          <div class="card-title">Perfil do Jogador <span class="card-title-icon" style="cursor:pointer;color:var(--neon-cyan)" onclick="openEditProfile()">&#9998; Editar</span></div>
           <div class="player-avatar-wrap">
             <div class="player-avatar" id="profileAvatar">MG</div>
             <div class="rank-badge">I</div>
@@ -1904,7 +2297,155 @@
   </div>
 </div>
 
-<script>
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header">
+    <div class="notif-panel-title">Notificações</div>
+    <div class="notif-mark-read" onclick="markAllRead()">Marcar lidas</div>
+  </div>
+  <div class="notif-list" id="notifList">
+    <div class="notif-item unread" onclick="readNotif(this)">
+      <div class="notif-icon notif-icon-match">⚽</div>
+      <div class="notif-content">
+        <div class="notif-text">FC Nexus vs Storm United começa em 2h — não percas!</div>
+        <div class="notif-time">Há 5 minutos</div>
+      </div>
+    </div>
+    <div class="notif-item unread" onclick="readNotif(this)">
+      <div class="notif-icon notif-icon-rank">🏆</div>
+      <div class="notif-content">
+        <div class="notif-text">Subiste para #12 no ranking global. +3 posições!</div>
+        <div class="notif-time">Há 38 minutos</div>
+      </div>
+    </div>
+    <div class="notif-item unread" onclick="readNotif(this)">
+      <div class="notif-icon notif-icon-discord">💬</div>
+      <div class="notif-content">
+        <div class="notif-text">VortexKing_BR mencionou-te no #partidas do Discord</div>
+        <div class="notif-time">Há 1 hora</div>
+      </div>
+    </div>
+    <div class="notif-item" onclick="readNotif(this)">
+      <div class="notif-icon notif-icon-match">📅</div>
+      <div class="notif-content">
+        <div class="notif-text">Treino Tático amanhã às 18:00 — Campo Principal</div>
+        <div class="notif-time">Há 3 horas</div>
+      </div>
+    </div>
+    <div class="notif-item" onclick="readNotif(this)">
+      <div class="notif-icon notif-icon-rank">⭐</div>
+      <div class="notif-content">
+        <div class="notif-text">Nova conquista desbloqueada: Hat-trick. Parabéns!</div>
+        <div class="notif-time">Ontem</div>
+      </div>
+    </div>
+  </div>
+  <div class="notif-panel-footer" onclick="closeNotifPanel()">Ver todas as notificações</div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal" onclick="closeOnOverlay(event,'settingsModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙ Configurações</div>
+      <div class="modal-close" onclick="closeModal('settingsModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section">
+        <div class="settings-section-title">Notificações</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Alertas de partidas</div>
+            <div class="settings-desc">Receber alertas 2h antes de cada jogo</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Notificações Discord</div>
+            <div class="settings-desc">Sincronizar alertas com o servidor Discord</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Subida de ranking</div>
+            <div class="settings-desc">Notificar quando mudar de posição</div>
+          </div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">Aparência</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Animações do dashboard</div>
+            <div class="settings-desc">Efeitos visuais e partículas</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Modo compacto</div>
+            <div class="settings-desc">Reduzir espaçamento entre elementos</div>
+          </div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">Conta</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Perfil público</div>
+            <div class="settings-desc">Visível para outros jogadores</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Mostrar online</div>
+            <div class="settings-desc">Estado visível no Discord e no leaderboard</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="editProfileModal" onclick="closeOnOverlay(event,'editProfileModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏ Editar Perfil</div>
+      <div class="modal-close" onclick="closeModal('editProfileModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section-title" style="font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px">Avatar</div>
+      <div class="edit-avatar-row" id="avatarOptions"></div>
+      <div class="edit-input-group">
+        <label class="edit-input-label">Nome de utilizador</label>
+        <input class="edit-input" type="text" id="editNameInput" placeholder="O teu nome...">
+      </div>
+      <div class="edit-input-group">
+        <label class="edit-input-label">Equipa</label>
+        <input class="edit-input" type="text" id="editTeamInput" value="FC Nexus" placeholder="Nome da equipa...">
+      </div>
+      <button class="save-btn" onclick="saveProfile()">💾 Guardar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Calendar Modal -->
+<div class="modal-overlay" id="calendarModal" onclick="closeOnOverlay(event,'calendarModal')">
+  <div class="modal" style="width:520px">
+    <div class="modal-header">
+      <div class="modal-title">📅 Calendário — Próximos Eventos</div>
+      <div class="modal-close" onclick="closeModal('calendarModal')">✕</div>
+    </div>
+    <div class="modal-body" id="calendarModalBody"></div>
+  </div>
+</div>
 // ── Leaderboard data ──
 const lbData = [
   {rank:1,name:"VortexKing_BR",xp:"12,440",change:"+2",avatar:"VK",color:"#ffd700"},
