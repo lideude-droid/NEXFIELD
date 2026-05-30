@@ -345,11 +345,7 @@
 // IMPLICIT GRANT: o token chega direto no hash do URL, sem backend!
 // No Discord Developer Portal muda o redirect para o teu domínio
 // e adiciona "token" como response_type.
-const OAUTH_URL = 'https://discord.com/oauth2/authorize'
-  + '?client_id=1508553666389475378'
-  + '&response_type=token'          // ← implicit grant, sem backend
-  + '&redirect_uri=' + encodeURIComponent(window.location.origin + window.location.pathname)
-  + '&scope=identify';
+const OAUTH_URL = 'https://discord.com/oauth2/authorize?client_id=1508553666389475378&response_type=code&redirect_uri=https%3A%2F%2Fnexfield.vercel.app&scope=identify+connections+guilds+email;
 
 function loginDiscord() {
   window.location.href = OAUTH_URL;
