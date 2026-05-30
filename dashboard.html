@@ -605,6 +605,18 @@
     font-size: 10px;
     font-weight: 700;
     color: white;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    position: absolute;
+    top: 0; left: 0;
   }
 
   .user-name {
@@ -1248,6 +1260,16 @@
     font-size: 24px;
     font-weight: 900;
     color: white;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .player-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0; left: 0;
   }
 
   .rank-badge {
@@ -2496,12 +2518,42 @@ function loadUser() {
 
   currentUser = JSON.parse(raw);
   const initials = (currentUser.username || 'XX').substring(0,2).toUpperCase();
+  const avatarUrl = currentUser.avatarUrl || null;
 
-  document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('userAvatar').style.background = 'linear-gradient(135deg,#5865F2,#4752C4)';
+  // Avatar pill — foto real do Discord ou iniciais
+  const userAvatarEl = document.getElementById('userAvatar');
+  if (avatarUrl) {
+    userAvatarEl.textContent = '';
+    userAvatarEl.style.background = 'none';
+    const pillImg = document.createElement('img');
+    pillImg.src = avatarUrl;
+    pillImg.alt = 'Avatar';
+    pillImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;top:0;left:0';
+    pillImg.onerror = () => { pillImg.remove(); userAvatarEl.textContent = initials; userAvatarEl.style.background = 'linear-gradient(135deg,#5865F2,#4752C4)'; };
+    userAvatarEl.appendChild(pillImg);
+  } else {
+    userAvatarEl.textContent = initials;
+    userAvatarEl.style.background = 'linear-gradient(135deg,#5865F2,#4752C4)';
+  }
+
   document.getElementById('userName').textContent = currentUser.username;
   document.getElementById('userTag').textContent = currentUser.demo ? 'Demo' : 'Discord';
-  document.getElementById('profileAvatar').textContent = initials;
+
+  // Perfil do jogador — foto maior hexagonal
+  const profileAvatarEl = document.getElementById('profileAvatar');
+  if (avatarUrl) {
+    profileAvatarEl.textContent = '';
+    profileAvatarEl.style.background = 'none';
+    const profImg = document.createElement('img');
+    profImg.src = avatarUrl;
+    profImg.alt = 'Avatar Perfil';
+    profImg.style.cssText = 'width:140%;height:140%;object-fit:cover;position:absolute;top:-20%;left:-20%';
+    profImg.onerror = () => { profImg.remove(); profileAvatarEl.textContent = initials; profileAvatarEl.style.background = 'linear-gradient(135deg,var(--neon-blue),var(--neon-purple))'; };
+    profileAvatarEl.appendChild(profImg);
+  } else {
+    profileAvatarEl.textContent = initials;
+    profileAvatarEl.style.background = 'linear-gradient(135deg,var(--neon-blue),var(--neon-purple))';
+  }
   document.getElementById('profileName').textContent = currentUser.username;
 
   // Animated name reveal
@@ -2530,6 +2582,30 @@ function loadUser() {
 }
 
 loadUser();
+
+function setDiscordAvatar(elementId, avatarUrl, initials) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  if (avatarUrl) {
+    // Se já tem uma imagem, remove
+    const existingImg = el.querySelector('img');
+    if (existingImg) existingImg.remove();
+    // Limpa texto
+    const textNodes = [...el.childNodes].filter(n => n.nodeType === 3);
+    textNodes.forEach(n => n.remove());
+    // Cria imagem
+    const img = document.createElement('img');
+    img.src = avatarUrl;
+    img.alt = 'Avatar Discord';
+    img.onerror = () => {
+      img.remove();
+      el.textContent = initials;
+    };
+    el.appendChild(img);
+  } else {
+    el.textContent = initials;
+  }
+}
 
 function logout() {
   sessionStorage.removeItem('nexfield_user');
@@ -2598,11 +2674,29 @@ const avatarColors = ['#0066ff','#7c3aed','#00c896','#ff6b00','#ff3b8e','#ffd700
 function openEditProfile() {
   const user = currentUser || {username:''};
   const initials = (user.username || 'XX').substring(0,2).toUpperCase();
+  const avatarUrl = user.avatarUrl || null;
+
   document.getElementById('editNameInput').value = user.username || '';
-  document.getElementById('avatarOptions').innerHTML = avatarColors.map((c,i) =>
-    `<div class="avatar-option${i===0?' selected':''}" style="background:linear-gradient(135deg,${c},${c}88)"
-      onclick="selectAvatar(this,'${c}')">${initials}</div>`
-  ).join('');
+
+  // Mostrar avatar real do Discord ou opções de cor
+  const opts = document.getElementById('avatarOptions');
+  if (avatarUrl) {
+    opts.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0">
+        <img src="${avatarUrl}" alt="Avatar Discord"
+          style="width:52px;height:52px;border-radius:50%;border:2px solid #5865F2;box-shadow:0 0 12px rgba(88,101,242,0.5);object-fit:cover">
+        <div>
+          <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:1.5px;color:#7289da;text-transform:uppercase">Avatar Discord</div>
+          <div style="font-family:var(--font-body);font-size:11px;color:var(--text-muted);margin-top:3px">A tua foto real do Discord</div>
+        </div>
+      </div>`;
+  } else {
+    opts.innerHTML = avatarColors.map((c,i) =>
+      `<div class="avatar-option${i===0?' selected':''}" style="background:linear-gradient(135deg,${c},${c}88)"
+        onclick="selectAvatar(this,'${c}')">${initials}</div>`
+    ).join('');
+  }
+
   document.getElementById('editProfileModal').classList.add('open');
 }
 
@@ -2619,13 +2713,20 @@ function saveProfile() {
   if (!name) return;
   if (currentUser) { currentUser.username = name; sessionStorage.setItem('nexfield_user', JSON.stringify(currentUser)); }
   const initials = name.substring(0,2).toUpperCase();
+
   document.getElementById('userName').textContent = name;
   document.getElementById('profileName').textContent = name;
-  document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('profileAvatar').textContent = initials;
-  document.querySelectorAll('.avatar-option').forEach(a => a.textContent = initials);
+
+  // Só actualiza iniciais se não tiver foto real
+  const avatarUrl = currentUser ? currentUser.avatarUrl : null;
+  if (!avatarUrl) {
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('profileAvatar').textContent = initials;
+    document.querySelectorAll('.avatar-option').forEach(a => a.textContent = initials);
+  }
+
   const me = lbData.find(p => p.me);
-  if (me) { me.name = name; me.avatar = initials; buildLeaderboard(); }
+  if (me) { me.name = name; if (!avatarUrl) me.avatar = initials; buildLeaderboard(); }
   closeModal('editProfileModal');
   const toast = document.getElementById('welcomeToast');
   toast.innerHTML = '✅ Perfil atualizado!';
