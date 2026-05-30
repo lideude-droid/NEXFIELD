@@ -55,7 +55,6 @@
   .p { position:fixed; width:2px; height:2px; background:var(--neon-cyan); border-radius:50%; animation:fp var(--d,8s) ease-in-out infinite; opacity:.5; pointer-events:none; }
   @keyframes fp { 0%,100%{transform:translateY(0) translateX(0);opacity:.2} 50%{transform:translateY(-50px) translateX(20px);opacity:.9} }
 
-  /* ── CALLBACK SCREEN ── */
   #callback-screen {
     position:relative; z-index:10;
     display:none;
@@ -114,7 +113,6 @@
     color: #7289da;
     text-transform: uppercase;
   }
-
   .cb-title {
     font-family:var(--font-display);
     font-size:22px; font-weight:800;
@@ -139,7 +137,6 @@
     color:var(--text-secondary);
     text-transform:uppercase;
   }
-
   .cb-progress {
     width: 200px;
     height: 2px;
@@ -154,7 +151,6 @@
     transition: width 0.4s ease;
   }
 
-  /* ── LANDING SCREEN ── */
   #landing-screen {
     position:relative; z-index:10;
     display:flex;
@@ -314,7 +310,7 @@
 
 <!-- Landing screen -->
 <div id="landing-screen">
-  <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoH..." class="logo-img" alt="NEXFIELD" onerror="this.style.display='none'">
+  <img src="nexfield-logo.png" class="logo-img" alt="NEXFIELD" onerror="this.style.display='none'">
   <div class="hero-badge">Roblox Sports Universe &bull; Temporada 4</div>
   <h1 class="hero-title">
     <div class="line1">NEXFIELD</div>
@@ -328,7 +324,7 @@
     </svg>
     Entrar com Discord
   </button>
-  <button class="demo-btn" onclick="goToDashboard('demo')">Explorar em modo demo →</button>
+  <button class="demo-btn" onclick="goToDashboard('demo')">Explorar em modo demo &rarr;</button>
 
   <div class="hero-stats">
     <div class="hero-stat"><div class="stat-num">12.4K</div><div class="stat-lbl">Jogadores</div></div>
@@ -341,11 +337,12 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Config ──
-// IMPLICIT GRANT: o token chega direto no hash do URL, sem backend!
-// No Discord Developer Portal muda o redirect para o teu domínio
-// e adiciona "token" como response_type.
-const OAUTH_URL = 'https://discord.com/oauth2/authorize?client_id=1508553666389475378&response_type=code&redirect_uri=https%3A%2F%2Fnexfield.vercel.app&scope=identify;
+// ── IMPLICIT GRANT — sem backend, token chega direto no hash ──
+const OAUTH_URL = 'https://discord.com/oauth2/authorize'
+  + '?client_id=1508553666389475378'
+  + '&response_type=token'
+  + '&redirect_uri=' + encodeURIComponent('https://nexfield.vercel.app')
+  + '&scope=identify';
 
 function loginDiscord() {
   window.location.href = OAUTH_URL;
@@ -373,10 +370,10 @@ function setProgress(pct) {
   document.getElementById('cbProgress').style.width = pct + '%';
 }
 
-// ── Handle Discord implicit callback (token no hash) ──
+// ── Handle Discord implicit callback (access_token no hash) ──
 (async function handleCallback() {
   const hash = window.location.hash.substring(1);
-  if (!hash) return; // Nada no hash, mostrar landing normalmente
+  if (!hash) return;
 
   const params = new URLSearchParams(hash);
   const accessToken = params.get('access_token');
@@ -393,7 +390,7 @@ function setProgress(pct) {
   // Limpar URL imediatamente
   history.replaceState({}, document.title, window.location.pathname);
 
-  // Mostrar ecrã de callback, esconder landing
+  // Mostrar ecrã de callback
   document.getElementById('landing-screen').style.display = 'none';
   document.getElementById('callback-screen').classList.add('show');
 
@@ -401,35 +398,35 @@ function setProgress(pct) {
   document.getElementById('cbStatus').textContent = 'A verificar conta Discord';
 
   try {
-    // Chamar API do Discord com o token
     setProgress(50);
     const res = await fetch('https://discord.com/api/users/@me', {
       headers: { Authorization: 'Bearer ' + accessToken }
     });
 
-    if (!res.ok) throw new Error('API Discord falhou: ' + res.status);
+    if (!res.ok) throw new Error('API Discord: ' + res.status);
 
     const user = await res.json();
     setProgress(80);
 
-    // Construir URL do avatar
+    // URL do avatar
     let avatarUrl = null;
     if (user.avatar) {
       const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
       avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=128`;
     } else {
-      // Avatar padrão do Discord
-      const idx = (parseInt(user.discriminator || '0') || 0) % 5;
+      const idx = ((parseInt(user.id) >> 22) % 6); // novo sistema Discord (6 avatares)
       avatarUrl = `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
     }
 
     // Mostrar avatar
     const cbAvatar = document.getElementById('cbAvatar');
-    const cbSpinner = document.getElementById('cbSpinner');
     cbAvatar.src = avatarUrl;
     cbAvatar.onload = () => {
-      cbSpinner.classList.add('hidden');
+      document.getElementById('cbSpinner').classList.add('hidden');
       cbAvatar.classList.add('loaded');
+    };
+    cbAvatar.onerror = () => {
+      document.getElementById('cbSpinner').classList.add('hidden');
     };
 
     // Mostrar nome
@@ -438,35 +435,28 @@ function setProgress(pct) {
     document.getElementById('cbStatus').textContent = 'Conta verificada · A entrar...';
     setProgress(100);
 
-    // Guardar na sessão com todos os dados do Discord
-    const userData = {
+    // Guardar sessão
+    sessionStorage.setItem('nexfield_user', JSON.stringify({
       username: displayName,
-      discriminator: user.discriminator,
+      discriminator: user.discriminator || '0',
       id: user.id,
       avatar: user.avatar,
       avatarUrl: avatarUrl,
       accessToken: accessToken,
       demo: false
-    };
-    sessionStorage.setItem('nexfield_user', JSON.stringify(userData));
+    }));
 
-    // Redirecionar após mostrar o utilizador
-    setTimeout(() => {
-      window.location.href = 'dashboard.html';
-    }, 2000);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
 
   } catch (err) {
     console.error('Erro Discord API:', err);
     document.getElementById('cbStatus').textContent = 'Erro ao verificar conta';
     setProgress(0);
-    // Fallback para demo
     setTimeout(() => {
       sessionStorage.setItem('nexfield_user', JSON.stringify({
         username: 'Jogador Discord',
-        avatar: null,
-        avatarUrl: null,
-        id: 'discord_fallback',
-        demo: false
+        avatar: null, avatarUrl: null,
+        id: 'discord_fallback', demo: false
       }));
       window.location.href = 'dashboard.html';
     }, 2000);
