@@ -2108,7 +2108,7 @@
 
     <!-- Actions -->
     <div class="topbar-actions">
-      <div class="action-btn" title="Notificações" onclick="toggleNotifPanel(this)" id="notifBtn">
+      <div class="action-btn" title="Notificações" onclick="toggleNotifPanel()" id="notifBtn">
         &#128276;
         <div class="notif-badge" id="notifBadge">3</div>
       </div>
@@ -2446,6 +2446,8 @@
     <div class="modal-body" id="calendarModalBody"></div>
   </div>
 </div>
+
+<script>
 // ── Leaderboard data ──
 const lbData = [
   {rank:1,name:"VortexKing_BR",xp:"12,440",change:"+2",avatar:"VK",color:"#ffd700"},
@@ -2467,7 +2469,7 @@ function buildLeaderboard() {
   el.innerHTML = lbData.map(p => {
     const rc = p.rank===1?'top1':p.rank===2?'top2':p.rank===3?'top3':'';
     const cc = p.change.startsWith('+')?'up':p.change==='+0'?'same':'dn';
-    const cl = p.change==='+0'?'&mdash;':p.change;
+    const cl = p.change==='+0'?'—':p.change;
     return `<div class="lb-item${p.me?' me':''}">
       <div class="lb-rank ${rc}">${p.rank}</div>
       <div class="lb-avatar" style="background:linear-gradient(135deg,${p.color}88,${p.color}44)">${p.avatar}</div>
@@ -2481,32 +2483,49 @@ function buildLeaderboard() {
 buildLeaderboard();
 
 // ── Auth: check session ──
+let currentUser = null;
+
 function loadUser() {
   const guard = document.getElementById('authGuard');
   const raw = sessionStorage.getItem('nexfield_user');
 
   if (!raw) {
-    // Not logged in → redirect to index
     window.location.href = 'index.html';
     return;
   }
 
-  const user = JSON.parse(raw);
+  currentUser = JSON.parse(raw);
+  const initials = (currentUser.username || 'XX').substring(0,2).toUpperCase();
 
-  // Update UI with user info
-  const initials = (user.username || 'XX').substring(0,2).toUpperCase();
   document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('userName').textContent = user.demo ? user.username : user.username;
+  document.getElementById('userAvatar').style.background = 'linear-gradient(135deg,#5865F2,#4752C4)';
+  document.getElementById('userName').textContent = currentUser.username;
+  document.getElementById('userTag').textContent = currentUser.demo ? 'Demo' : 'Discord';
   document.getElementById('profileAvatar').textContent = initials;
-  document.getElementById('profileName').textContent = user.username;
+  document.getElementById('profileName').textContent = currentUser.username;
 
-  // Show welcome toast
+  // Animated name reveal
+  const nameEl = document.getElementById('userName');
+  nameEl.style.cssText = 'opacity:0;transform:translateX(-6px);transition:opacity 0.5s ease,transform 0.5s ease';
+  setTimeout(() => { nameEl.style.opacity='1'; nameEl.style.transform='translateX(0)'; }, 700);
+
+  // Discord glow pulse on pill
+  const pill = document.getElementById('userPill');
+  setTimeout(() => {
+    pill.style.transition = 'border-color 0.4s,box-shadow 0.4s';
+    pill.style.borderColor = '#5865F2';
+    pill.style.boxShadow = '0 0 18px rgba(88,101,242,0.5)';
+    setTimeout(() => { pill.style.borderColor=''; pill.style.boxShadow=''; }, 1600);
+  }, 500);
+
+  // Welcome toast with styled name
   const toast = document.getElementById('welcomeToast');
-  toast.textContent = user.demo ? '&#128075; Modo Demo — bem-vindo!' : '&#128075; Bem-vindo, ' + user.username + '!';
+  toast.innerHTML = currentUser.demo
+    ? '👋 Modo Demo — bem-vindo!'
+    : '👋 Bem-vindo de volta, <strong style="color:var(--neon-cyan)">' + currentUser.username + '</strong>!';
   setTimeout(() => toast.classList.add('show'), 400);
-  setTimeout(() => toast.classList.remove('show'), 3500);
+  setTimeout(() => toast.classList.remove('show'), 4000);
 
-  // Hide auth guard
   setTimeout(() => guard.classList.add('hidden'), 600);
 }
 
@@ -2527,9 +2546,13 @@ function selectSport(icon, name) {
   document.getElementById('sportIconBig').innerHTML = icon;
   document.getElementById('sportsDropdown').classList.remove('open');
 }
+
 document.addEventListener('click', e => {
   const dd = document.getElementById('sportsDropdown');
   if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+  const np = document.getElementById('notifPanel');
+  const nb = document.getElementById('notifBtn');
+  if (np && !np.contains(e.target) && nb && !nb.contains(e.target)) np.classList.remove('open');
 });
 
 // ── Sidebar ──
@@ -2538,11 +2561,116 @@ function setActive(el) {
   el.classList.add('active');
 }
 
-// ── Notifications ──
-function toggleNotif(btn) {
-  const b = document.getElementById('notifBadge');
-  b.style.display = b.style.display === 'none' ? 'flex' : 'none';
+// ── Notifications Panel ──
+function toggleNotifPanel() {
+  document.getElementById('notifPanel').classList.toggle('open');
 }
+
+function closeNotifPanel() {
+  document.getElementById('notifPanel').classList.remove('open');
+}
+
+function readNotif(el) {
+  el.classList.remove('unread');
+  updateNotifCount();
+}
+
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+  updateNotifCount();
+}
+
+function updateNotifCount() {
+  const count = document.querySelectorAll('.notif-item.unread').length;
+  const badge = document.getElementById('notifBadge');
+  badge.style.display = count === 0 ? 'none' : 'flex';
+  if (count > 0) badge.textContent = count;
+}
+
+// ── Settings Modal ──
+function openSettings() {
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+// ── Edit Profile Modal ──
+const avatarColors = ['#0066ff','#7c3aed','#00c896','#ff6b00','#ff3b8e','#ffd700','#00aaff','#a855f7'];
+
+function openEditProfile() {
+  const user = currentUser || {username:''};
+  const initials = (user.username || 'XX').substring(0,2).toUpperCase();
+  document.getElementById('editNameInput').value = user.username || '';
+  document.getElementById('avatarOptions').innerHTML = avatarColors.map((c,i) =>
+    `<div class="avatar-option${i===0?' selected':''}" style="background:linear-gradient(135deg,${c},${c}88)"
+      onclick="selectAvatar(this,'${c}')">${initials}</div>`
+  ).join('');
+  document.getElementById('editProfileModal').classList.add('open');
+}
+
+function selectAvatar(el, color) {
+  document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
+  el.classList.add('selected');
+  const grad = `linear-gradient(135deg,${color},${color}88)`;
+  document.getElementById('profileAvatar').style.background = grad;
+  document.getElementById('userAvatar').style.background = grad;
+}
+
+function saveProfile() {
+  const name = document.getElementById('editNameInput').value.trim();
+  if (!name) return;
+  if (currentUser) { currentUser.username = name; sessionStorage.setItem('nexfield_user', JSON.stringify(currentUser)); }
+  const initials = name.substring(0,2).toUpperCase();
+  document.getElementById('userName').textContent = name;
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('profileAvatar').textContent = initials;
+  document.querySelectorAll('.avatar-option').forEach(a => a.textContent = initials);
+  const me = lbData.find(p => p.me);
+  if (me) { me.name = name; me.avatar = initials; buildLeaderboard(); }
+  closeModal('editProfileModal');
+  const toast = document.getElementById('welcomeToast');
+  toast.innerHTML = '✅ Perfil atualizado!';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ── Calendar Modal ──
+const allEvents = [
+  {day:'28',month:'Jun',name:'FC Nexus vs Storm United',sub:'Liga Nexfield Pro · 20:00',type:'Jogo',cls:'type-match'},
+  {day:'29',month:'Jun',name:'Treino Tático',sub:'Campo Principal · 18:00',type:'Treino',cls:'type-training'},
+  {day:'02',month:'Jul',name:'Nexfield Cup — QF',sub:'Fase Final · 21:00',type:'Copa',cls:'type-cup'},
+  {day:'05',month:'Jul',name:'Vortex FC vs FC Nexus',sub:'Liga Nexfield Pro · 19:30',type:'Jogo',cls:'type-match'},
+  {day:'08',month:'Jul',name:'Treino Físico',sub:'Campo Secundário · 17:00',type:'Treino',cls:'type-training'},
+  {day:'12',month:'Jul',name:'Nexfield Cup — SF',sub:'Meia-final · 20:00',type:'Copa',cls:'type-cup'},
+  {day:'14',month:'Jul',name:'FC Nexus vs CyberUnited',sub:'Liga Nexfield Pro · 21:30',type:'Jogo',cls:'type-match'},
+  {day:'19',month:'Jul',name:'Nexfield Cup — Final',sub:'Grande Final · 21:00',type:'Copa',cls:'type-cup'},
+];
+
+function openCalendar() {
+  document.getElementById('calendarModalBody').innerHTML =
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+    allEvents.map(e => `
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:rgba(0,245,255,0.02);border:1px solid rgba(0,245,255,0.07);cursor:pointer;transition:background 0.2s"
+        onmouseenter="this.style.background='rgba(0,245,255,0.06)'" onmouseleave="this.style.background='rgba(0,245,255,0.02)'">
+        <div style="text-align:center;min-width:40px">
+          <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--neon-cyan);line-height:1">${e.day}</div>
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase">${e.month}</div>
+        </div>
+        <div style="width:1px;height:36px;background:rgba(0,245,255,0.15)"></div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-ui);font-size:14px;font-weight:700;letter-spacing:0.5px;color:var(--text-primary);text-transform:uppercase">${e.name}</div>
+          <div style="font-family:var(--font-body);font-size:11px;color:var(--text-muted);margin-top:2px">${e.sub}</div>
+        </div>
+        <div class="event-type ${e.cls}">${e.type}</div>
+      </div>`).join('') + '</div>';
+  document.getElementById('calendarModal').classList.add('open');
+}
+
+// ── Modal Helpers ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeOnOverlay(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') ['settingsModal','editProfileModal','calendarModal'].forEach(closeModal);
+});
 
 // ── logoFloat keyframe ──
 const s = document.createElement('style');
