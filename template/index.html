@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEXFIELD — Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --neon-cyan: #00f5ff;
+        --neon-blue: #0066ff;
+        --bg-void: #020408;
+        --text-primary: #e8f4ff;
+        --text-secondary: #6b9ab8;
+        --text-muted: #2a4a6b;
+        --border-neon: rgba(0, 245, 255, 0.15);
+        --font-display: "Orbitron", sans-serif;
+        --font-ui: "Rajdhani", sans-serif;
+        --font-body: "Inter", sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg-void);
+        color: var(--text-primary);
+        font-family: var(--font-body);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 102, 255, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 102, 255, 0.07) 1px, transparent 1px);
+        background-size: 60px 60px;
+        animation: gridMove 20s linear infinite;
+        pointer-events: none;
+      }
+      @keyframes gridMove {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(60px);
+        }
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(
+          ellipse,
+          rgba(0, 102, 255, 0.13) 0%,
+          rgba(0, 245, 255, 0.05) 40%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .p {
+        position: fixed;
+        width: 2px;
+        height: 2px;
+        background: var(--neon-cyan);
+        border-radius: 50%;
+        animation: fp var(--d, 8s) ease-in-out infinite;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      @keyframes fp {
+        0%,
+        100% {
+          transform: translateY(0) translateX(0);
+          opacity: 0.2;
+        }
+        50% {
+          transform: translateY(-50px) translateX(20px);
+          opacity: 0.9;
+        }
+      }
+
+      #callback-screen {
+        position: relative;
+        z-index: 10;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+        padding: 40px;
+      }
+      #callback-screen.show {
+        display: flex;
+      }
+
+      .cb-avatar-wrap {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 4px;
+      }
+      .cb-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        object-fit: cover;
+        display: none;
+      }
+      .cb-avatar.loaded {
+        display: block;
+      }
+      .cb-spinner {
+        width: 56px;
+        height: 56px;
+        border: 3px solid rgba(0, 245, 255, 0.1);
+        border-top-color: var(--neon-cyan);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .cb-spinner.hidden {
+        display: none;
+      }
+      @keyframes spin {
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      .cb-discord-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(88, 101, 242, 0.15);
+        border: 1px solid rgba(88, 101, 242, 0.4);
+        padding: 4px 12px;
+        border-radius: 20px;
+      }
+      .cb-discord-badge svg {
+        width: 14px;
+        height: 10px;
+        fill: #7289da;
+      }
+      .cb-discord-tag {
+        font-family: var(--font-ui);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        color: #7289da;
+        text-transform: uppercase;
+      }
+      .cb-title {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: var(--text-primary);
+        text-transform: uppercase;
+      }
+      .cb-username {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-transform: uppercase;
+        min-height: 24px;
+      }
+      .cb-sub {
+        font-family: var(--font-ui);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+      }
+      .cb-progress {
+        width: 200px;
+        height: 2px;
+        background: rgba(0, 245, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      .cb-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+        width: 0%;
+        transition: width 0.4s ease;
+      }
+
+      #landing-screen {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 40px 24px;
+        max-width: 560px;
+        width: 100%;
+      }
+
+      .logo-img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 30px rgba(0, 150, 255, 0.7))
+          drop-shadow(0 0 60px rgba(0, 100, 255, 0.3));
+        animation: logoFloat 4s ease-in-out infinite;
+        margin-bottom: 8px;
+      }
+      @keyframes logoFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+          filter: drop-shadow(0 0 30px rgba(0, 150, 255, 0.7))
+            drop-shadow(0 0 60px rgba(0, 100, 255, 0.3));
+        }
+        50% {
+          transform: translateY(-12px);
+          filter: drop-shadow(0 0 45px rgba(0, 200, 255, 0.9))
+            drop-shadow(0 0 80px rgba(0, 150, 255, 0.5));
+        }
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 245, 255, 0.06);
+        border: 1px solid rgba(0, 245, 255, 0.2);
+        padding: 6px 18px;
+        font-family: var(--font-ui);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        color: var(--neon-cyan);
+        text-transform: uppercase;
+        margin-bottom: 28px;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+      }
+      .hero-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--neon-cyan);
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.3;
+          transform: scale(0.7);
+        }
+      }
+
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(48px, 10vw, 88px);
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .line1 {
+        color: var(--text-primary);
+      }
+      .line2 {
+        background: linear-gradient(
+          90deg,
+          var(--neon-blue),
+          var(--neon-cyan),
+          var(--neon-blue)
+        );
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 3s linear infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 0% 0%;
+        }
+        100% {
+          background-position: 200% 0%;
+        }
+      }
+
+      .hero-tagline {
+        font-family: var(--font-ui);
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: 2.5px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin: 24px 0 40px;
+      }
+
+      .discord-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        background: linear-gradient(135deg, #5865f2, #4752c4);
+        border: none;
+        padding: 18px 52px;
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: white;
+        cursor: pointer;
+        text-transform: uppercase;
+        clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+        margin-bottom: 14px;
+        width: 100%;
+        justify-content: center;
+      }
+      .discord-btn::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.12),
+          transparent
+        );
+        transform: translateX(-100%);
+        transition: transform 0.5s;
+      }
+      .discord-btn:hover::after {
+        transform: translateX(100%);
+      }
+      .discord-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 40px rgba(88, 101, 242, 0.55);
+      }
+      .discord-icon {
+        width: 20px;
+        height: 14px;
+        fill: white;
+        flex-shrink: 0;
+      }
+
+      .demo-btn {
+        width: 100%;
+        background: transparent;
+        border: 1px solid var(--border-neon);
+        padding: 13px 0;
+        font-family: var(--font-ui);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        cursor: pointer;
+        text-transform: uppercase;
+        clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        transition: all 0.2s;
+      }
+      .demo-btn:hover {
+        border-color: var(--neon-cyan);
+        color: var(--neon-cyan);
+      }
+
+      .hero-stats {
+        display: flex;
+        gap: 48px;
+        margin-top: 52px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(0, 245, 255, 0.08);
+      }
+      .hero-stat {
+        text-align: center;
+      }
+      .stat-num {
+        font-family: var(--font-display);
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--neon-cyan);
+        letter-spacing: 2px;
+      }
+      .stat-lbl {
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-top: 3px;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        padding: 12px 28px;
+        font-family: var(--font-ui);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        color: #00ff88;
+        text-transform: uppercase;
+        transition: transform 0.4s;
+        z-index: 999;
+        clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @media (max-width: 480px) {
+        .hero-stats {
+          gap: 24px;
+        }
+        .discord-btn {
+          padding: 16px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="p" style="top: 15%; left: 8%; --d: 7s"></div>
+    <div
+      class="p"
+      style="
+        top: 70%;
+        left: 6%;
+        --d: 11s;
+        background: var(--neon-blue);
+        width: 3px;
+        height: 3px;
+      "
+    ></div>
+    <div
+      class="p"
+      style="top: 35%; right: 9%; --d: 9s; background: #7c3aed"
+    ></div>
+    <div class="p" style="top: 80%; right: 12%; --d: 13s"></div>
+    <div
+      class="p"
+      style="top: 20%; right: 28%; --d: 8s; width: 3px; height: 3px"
+    ></div>
+    <div
+      class="p"
+      style="top: 55%; left: 50%; --d: 6s; background: var(--neon-blue)"
+    ></div>
+
+    <!-- Callback screen -->
+    <div id="callback-screen">
+      <div class="cb-avatar-wrap">
+        <div class="cb-spinner" id="cbSpinner"></div>
+        <img class="cb-avatar" id="cbAvatar" alt="Avatar Discord" />
+      </div>
+      <div class="cb-discord-badge">
+        <svg viewBox="0 0 71 55" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M60.1 4.9A58.5 58.5 0 0 0 45.4 0a40 40 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A38.7 38.7 0 0 0 25.6 0 58.3 58.3 0 0 0 10.9 5C1.6 18.8-1 32.3.3 45.6a58.9 58.9 0 0 0 18 9.1 44.4 44.4 0 0 0 3.8-6.2 38.3 38.3 0 0 1-6-2.9l1.5-1.1a42 42 0 0 0 36 0l1.5 1.1a38.6 38.6 0 0 1-6 2.9 44 44 0 0 0 3.8 6.2 58.7 58.7 0 0 0 18-9.1C72.4 30.2 68.5 16.9 60.1 4.9ZM23.8 37.4c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.4 0c-3.5 0-6.4-3.2-6.4-7.2s2.9-7.2 6.4-7.2 6.4 3.2 6.3 7.2c0 4-2.8 7.2-6.3 7.2Z"
+          />
+        </svg>
+        <span class="cb-discord-tag">Discord</span>
+      </div>
+      <div class="cb-username" id="cbUsername">A carregar...</div>
+      <div class="cb-title">Bem-vindo!</div>
+      <div class="cb-sub" id="cbStatus">A verificar conta Discord</div>
+      <div class="cb-progress">
+        <div class="cb-progress-bar" id="cbProgress"></div>
+      </div>
+    </div>
+
+    <!-- Landing screen -->
+    <div id="landing-screen">
+      <img
+        src="nexfield-logo.png"
+        class="logo-img"
+        alt="NEXFIELD"
+        onerror="this.style.display = 'none'"
+      />
+      <div class="hero-badge">Roblox Sports Universe &bull; Temporada 4</div>
+      <h1 class="hero-title">
+        <div class="line1">NEXFIELD</div>
+        <div class="line2">SPORTS</div>
+      </h1>
+      <p class="hero-tagline">A arena competitiva definitiva do Roblox</p>
+
+      <button class="discord-btn" onclick="loginDiscord()">
+        <svg
+          class="discord-icon"
+          viewBox="0 0 71 55"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M60.1 4.9A58.5 58.5 0 0 0 45.5 0.6a40.6 40.6 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.3 0 38.6 38.6 0 0 0-1.8-3.7A58.3 58.3 0 0 0 10.9 5C1.6 19.1-1 32.8 0.3 46.4a58.8 58.8 0 0 0 17.9 9.1 42.3 42.3 0 0 0 3.7-6 38.3 38.3 0 0 1-5.8-2.8c.5-.4 1-.7 1.5-1.1a41.9 41.9 0 0 0 35.7 0l1.5 1.1a38.5 38.5 0 0 1-5.8 2.8 42.3 42.3 0 0 0 3.7 6 58.6 58.6 0 0 0 17.9-9 52.4 52.4 0 0 0-9-41.5zm-38.1 33c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1 6.5 3.2 6.4 7.1c0 3.9-2.9 7.1-6.4 7.1zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1 6.5 3.2 6.4 7.1c0 3.9-2.8 7.1-6.4 7.1z"
+          />
+        </svg>
+        Entrar com Discord
+      </button>
+      <button class="demo-btn" onclick="goToDashboard('demo')">
+        Explorar em modo demo &rarr;
+      </button>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="stat-num">12.4K</div>
+          <div class="stat-lbl">Jogadores</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-num">847</div>
+          <div class="stat-lbl">Torneios</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-num">11</div>
+          <div class="stat-lbl">Desportos</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-num">S04</div>
+          <div class="stat-lbl">Temporada</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ── Config ──
+      const OAUTH_URL =
+        "https://discord.com/oauth2/authorize" +
+        "?client_id=1508553666389475378" +
+        "&response_type=token" +
+        "&redirect_uri=" +
+        encodeURIComponent("https://nexfield.vercel.app") +
+        "&scope=identify";
+
+      const STORAGE_KEY = "nexfield_user";
+      // Token expira após 7 dias (Discord implicit tokens duram 7 dias)
+      const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+      // ── Helpers ──
+      function saveUser(data) {
+        const toSave = { ...data, savedAt: Date.now() };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      }
+
+      function loadSavedUser() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        try {
+          const data = JSON.parse(raw);
+          // Ignorar contas demo guardadas
+          if (data.demo) return null;
+          // Verificar se o token ainda está dentro do prazo de validade
+          if (data.savedAt && Date.now() - data.savedAt > TOKEN_TTL_MS) {
+            localStorage.removeItem(STORAGE_KEY);
+            return null;
+          }
+          return data;
+        } catch {
+          return null;
+        }
+      }
+
+      function showToast(msg, dur = 3000) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), dur);
+      }
+
+      function setProgress(pct) {
+        document.getElementById("cbProgress").style.width = pct + "%";
+      }
+
+      function loginDiscord() {
+        window.location.href = OAUTH_URL;
+      }
+
+      function goToDashboard(mode) {
+        saveUser({
+          username: "Demo Player",
+          avatar: null,
+          avatarUrl: null,
+          id: "demo",
+          demo: true,
+        });
+        window.location.href = "dashboard.html";
+      }
+
+      // ── Mostrar ecrã de "a entrar automaticamente" ──
+      function showAutoLogin(user) {
+        document.getElementById("landing-screen").style.display = "none";
+        const cb = document.getElementById("callback-screen");
+        cb.classList.add("show");
+
+        document.getElementById("cbUsername").textContent = user.username;
+        document.getElementById("cbStatus").textContent =
+          "Sessão guardada · A entrar...";
+        setProgress(60);
+
+        // Mostrar avatar guardado
+        if (user.avatarUrl) {
+          const cbAvatar = document.getElementById("cbAvatar");
+          cbAvatar.src = user.avatarUrl;
+          cbAvatar.onload = () => {
+            document.getElementById("cbSpinner").classList.add("hidden");
+            cbAvatar.classList.add("loaded");
+            setProgress(100);
+          };
+          cbAvatar.onerror = () => {
+            document.getElementById("cbSpinner").classList.add("hidden");
+            setProgress(100);
+          };
+        } else {
+          document.getElementById("cbSpinner").classList.add("hidden");
+          setProgress(100);
+        }
+
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1200);
+      }
+
+      // ── Processar novo token vindo do Discord (hash no URL) ──
+      async function handleNewToken(accessToken) {
+        history.replaceState({}, document.title, window.location.pathname);
+
+        document.getElementById("landing-screen").style.display = "none";
+        document.getElementById("callback-screen").classList.add("show");
+        setProgress(20);
+        document.getElementById("cbStatus").textContent =
+          "A verificar conta Discord";
+
+        try {
+          setProgress(50);
+          const res = await fetch("https://discord.com/api/users/@me", {
+            headers: { Authorization: "Bearer " + accessToken },
+          });
+
+          if (!res.ok) throw new Error("API Discord: " + res.status);
+
+          const user = await res.json();
+          setProgress(80);
+
+          // Construir URL do avatar
+          let avatarUrl = null;
+          if (user.avatar) {
+            const ext = user.avatar.startsWith("a_") ? "gif" : "png";
+            avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=128`;
+          } else {
+            const idx =
+              parseInt(BigInt("0x" + user.id.toString(16)) >> 22n) % 6n;
+            avatarUrl = `https://cdn.discordapp.com/embed/avatars/${Number(idx)}.png`;
+          }
+
+          // Mostrar avatar
+          const cbAvatar = document.getElementById("cbAvatar");
+          cbAvatar.src = avatarUrl;
+          cbAvatar.onload = () => {
+            document.getElementById("cbSpinner").classList.add("hidden");
+            cbAvatar.classList.add("loaded");
+          };
+          cbAvatar.onerror = () =>
+            document.getElementById("cbSpinner").classList.add("hidden");
+
+          const displayName = user.global_name || user.username;
+          document.getElementById("cbUsername").textContent = displayName;
+          document.getElementById("cbStatus").textContent =
+            "Conta verificada · A entrar...";
+          setProgress(100);
+
+          // Guardar em localStorage E sessionStorage para futuras visitas
+          saveUser({
+            username: displayName,
+            discriminator: user.discriminator || "0",
+            id: user.id,
+            avatar: user.avatar,
+            avatarUrl: avatarUrl,
+            accessToken: accessToken,
+            demo: false,
+          });
+
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 2000);
+        } catch (err) {
+          console.error("Erro Discord API:", err);
+          document.getElementById("cbStatus").textContent =
+            "Erro ao verificar · A tentar novamente...";
+          setProgress(0);
+          setTimeout(() => {
+            window.location.href = window.location.pathname;
+          }, 2500);
+        }
+      }
+
+      // ── Ponto de entrada principal ──
+      (async function main() {
+        // 1. Verificar se há token novo a chegar do Discord (hash no URL)
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+          const params = new URLSearchParams(hash);
+          const accessToken = params.get("access_token");
+          const error = params.get("error");
+
+          if (error) {
+            showToast("Login cancelado");
+            history.replaceState({}, document.title, window.location.pathname);
+            return;
+          }
+
+          if (accessToken) {
+            await handleNewToken(accessToken);
+            return;
+          }
+        }
+
+        // 2. Sem hash — verificar se há sessão guardada válida
+        const saved = loadSavedUser();
+        if (saved) {
+          // Utilizador já autorizou antes — entrar automaticamente
+          showAutoLogin(saved);
+          return;
+        }
+
+        // 3. Nenhuma sessão — mostrar landing normalmente
+        // (o HTML já mostra o landing por defeito)
+      })();
+    </script>
+  </body>
+</html>
