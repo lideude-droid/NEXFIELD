@@ -311,7 +311,7 @@
 <!-- Landing screen -->
 <div id="landing-screen">
   <img src="nexfield-logo.png" class="logo-img" alt="NEXFIELD" onerror="this.style.display='none'">
-  <div class="hero-badge">Roblox Sports Universe &bull; Temporada 1</div>
+  <div class="hero-badge">Roblox Sports Universe &bull; Temporada 4</div>
   <h1 class="hero-title">
     <div class="line1">NEXFIELD</div>
     <div class="line2">SPORTS</div>
@@ -324,37 +324,51 @@
     </svg>
     Entrar com Discord
   </button>
+  <button class="demo-btn" onclick="goToDashboard('demo')">Explorar em modo demo &rarr;</button>
+
   <div class="hero-stats">
-    <div class="hero-stat"><div class="stat-num">0</div><div class="stat-lbl">Jogadores</div></div>
+    <div class="hero-stat"><div class="stat-num">12.4K</div><div class="stat-lbl">Jogadores</div></div>
     <div class="hero-stat"><div class="stat-num">847</div><div class="stat-lbl">Torneios</div></div>
     <div class="hero-stat"><div class="stat-num">11</div><div class="stat-lbl">Desportos</div></div>
-    <div class="hero-stat"><div class="stat-num">S01</div><div class="stat-lbl">Temporada</div></div>
+    <div class="hero-stat"><div class="stat-num">S04</div><div class="stat-lbl">Temporada</div></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── IMPLICIT GRANT — sem backend, token chega direto no hash ──
+// ── Config ──
 const OAUTH_URL = 'https://discord.com/oauth2/authorize'
   + '?client_id=1508553666389475378'
   + '&response_type=token'
   + '&redirect_uri=' + encodeURIComponent('https://nexfield.vercel.app')
   + '&scope=identify';
 
-function loginDiscord() {
-  window.location.href = OAUTH_URL;
+const STORAGE_KEY = 'nexfield_user';
+// Token expira após 7 dias (Discord implicit tokens duram 7 dias)
+const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+// ── Helpers ──
+function saveUser(data) {
+  const toSave = { ...data, savedAt: Date.now() };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
 }
 
-function goToDashboard(mode) {
-  sessionStorage.setItem('nexfield_user', JSON.stringify({
-    username: 'Demo Player',
-    avatar: null,
-    avatarUrl: null,
-    id: 'demo',
-    demo: true
-  }));
-  window.location.href = 'dashboard.html';
+function loadSavedUser() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw);
+    // Ignorar contas demo guardadas
+    if (data.demo) return null;
+    // Verificar se o token ainda está dentro do prazo de validade
+    if (data.savedAt && (Date.now() - data.savedAt) > TOKEN_TTL_MS) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return data;
+  } catch { return null; }
 }
 
 function showToast(msg, dur = 3000) {
@@ -368,30 +382,52 @@ function setProgress(pct) {
   document.getElementById('cbProgress').style.width = pct + '%';
 }
 
-// ── Handle Discord implicit callback (access_token no hash) ──
-(async function handleCallback() {
-  const hash = window.location.hash.substring(1);
-  if (!hash) return;
+function loginDiscord() {
+  window.location.href = OAUTH_URL;
+}
 
-  const params = new URLSearchParams(hash);
-  const accessToken = params.get('access_token');
-  const error = params.get('error');
+function goToDashboard(mode) {
+  saveUser({ username: 'Demo Player', avatar: null, avatarUrl: null, id: 'demo', demo: true });
+  window.location.href = 'dashboard.html';
+}
 
-  if (error) {
-    showToast('Login cancelado');
-    history.replaceState({}, document.title, window.location.pathname);
-    return;
+// ── Mostrar ecrã de "a entrar automaticamente" ──
+function showAutoLogin(user) {
+  document.getElementById('landing-screen').style.display = 'none';
+  const cb = document.getElementById('callback-screen');
+  cb.classList.add('show');
+
+  document.getElementById('cbUsername').textContent = user.username;
+  document.getElementById('cbStatus').textContent = 'Sessão guardada · A entrar...';
+  setProgress(60);
+
+  // Mostrar avatar guardado
+  if (user.avatarUrl) {
+    const cbAvatar = document.getElementById('cbAvatar');
+    cbAvatar.src = user.avatarUrl;
+    cbAvatar.onload = () => {
+      document.getElementById('cbSpinner').classList.add('hidden');
+      cbAvatar.classList.add('loaded');
+      setProgress(100);
+    };
+    cbAvatar.onerror = () => {
+      document.getElementById('cbSpinner').classList.add('hidden');
+      setProgress(100);
+    };
+  } else {
+    document.getElementById('cbSpinner').classList.add('hidden');
+    setProgress(100);
   }
 
-  if (!accessToken) return;
+  setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+}
 
-  // Limpar URL imediatamente
+// ── Processar novo token vindo do Discord (hash no URL) ──
+async function handleNewToken(accessToken) {
   history.replaceState({}, document.title, window.location.pathname);
 
-  // Mostrar ecrã de callback
   document.getElementById('landing-screen').style.display = 'none';
   document.getElementById('callback-screen').classList.add('show');
-
   setProgress(20);
   document.getElementById('cbStatus').textContent = 'A verificar conta Discord';
 
@@ -406,14 +442,14 @@ function setProgress(pct) {
     const user = await res.json();
     setProgress(80);
 
-    // URL do avatar
+    // Construir URL do avatar
     let avatarUrl = null;
     if (user.avatar) {
       const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
       avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=128`;
     } else {
-      const idx = ((parseInt(user.id) >> 22) % 6); // novo sistema Discord (6 avatares)
-      avatarUrl = `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
+      const idx = (parseInt(BigInt('0x' + user.id.toString(16)) >> 22n) % 6n);
+      avatarUrl = `https://cdn.discordapp.com/embed/avatars/${Number(idx)}.png`;
     }
 
     // Mostrar avatar
@@ -423,18 +459,15 @@ function setProgress(pct) {
       document.getElementById('cbSpinner').classList.add('hidden');
       cbAvatar.classList.add('loaded');
     };
-    cbAvatar.onerror = () => {
-      document.getElementById('cbSpinner').classList.add('hidden');
-    };
+    cbAvatar.onerror = () => document.getElementById('cbSpinner').classList.add('hidden');
 
-    // Mostrar nome
     const displayName = user.global_name || user.username;
     document.getElementById('cbUsername').textContent = displayName;
     document.getElementById('cbStatus').textContent = 'Conta verificada · A entrar...';
     setProgress(100);
 
-    // Guardar sessão
-    sessionStorage.setItem('nexfield_user', JSON.stringify({
+    // Guardar em localStorage E sessionStorage para futuras visitas
+    saveUser({
       username: displayName,
       discriminator: user.discriminator || '0',
       id: user.id,
@@ -442,23 +475,49 @@ function setProgress(pct) {
       avatarUrl: avatarUrl,
       accessToken: accessToken,
       demo: false
-    }));
+    });
 
     setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
 
   } catch (err) {
     console.error('Erro Discord API:', err);
-    document.getElementById('cbStatus').textContent = 'Erro ao verificar conta';
+    document.getElementById('cbStatus').textContent = 'Erro ao verificar · A tentar novamente...';
     setProgress(0);
-    setTimeout(() => {
-      sessionStorage.setItem('nexfield_user', JSON.stringify({
-        username: 'Jogador Discord',
-        avatar: null, avatarUrl: null,
-        id: 'discord_fallback', demo: false
-      }));
-      window.location.href = 'dashboard.html';
-    }, 2000);
+    setTimeout(() => { window.location.href = window.location.pathname; }, 2500);
   }
+}
+
+// ── Ponto de entrada principal ──
+(async function main() {
+  // 1. Verificar se há token novo a chegar do Discord (hash no URL)
+  const hash = window.location.hash.substring(1);
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+    const error = params.get('error');
+
+    if (error) {
+      showToast('Login cancelado');
+      history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (accessToken) {
+      await handleNewToken(accessToken);
+      return;
+    }
+  }
+
+  // 2. Sem hash — verificar se há sessão guardada válida
+  const saved = loadSavedUser();
+  if (saved) {
+    // Utilizador já autorizou antes — entrar automaticamente
+    showAutoLogin(saved);
+    return;
+  }
+
+  // 3. Nenhuma sessão — mostrar landing normalmente
+  // (o HTML já mostra o landing por defeito)
 })();
 </script>
 </body>
